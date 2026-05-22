@@ -1,98 +1,286 @@
----
-title: Introduction to development builds
-sidebar_title: Introduction
-description: Why use development builds and how to get started.
-searchRank: 98
-searchPosition: 1
-hideTOC: true
-hasVideoLink: true
----
+import React, { useState } from 'react';
 
-import { BookOpen02Icon } from '@expo/styleguide-icons/outline/BookOpen02Icon';
+export default function TelcoAssistApp() {
+  // স্ক্রিন নেভিগেশন স্টেট: 'login', 'dashboard', 'settings'
+  const [screen, setScreen] = useState('login');
+  
+  // লগইন স্টেট
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-import { BoxLink } from '~/ui/components/BoxLink';
-import { Collapsible } from '~/ui/components/Collapsible';
-import { VideoBoxLink } from '~/ui/components/VideoBoxLink';
+  // সেটিংস স্টেট
+  const [notifications, setNotifications] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
+  const [regionFilter, setRegionFilter] = useState('All');
 
-**Development build** is the term that we use for a "Debug" build of an app that includes the [`expo-dev-client`](/versions/latest/sdk/dev-client/) library. This library augments the built-in React Native development tooling with additional capabilities, such as support for inspecting network requests and a "launcher" UI that lets you switch between different development servers (such as between a server running on your machine or a teammate's machine) and deployments of your app (such as published updates with EAS Update).
+  const cards = [
+    { title: 'Active Sites', value: '24' },
+    { title: 'Pending Materials', value: '08' },
+    { title: 'Open Alarms', value: '05' },
+    { title: 'Team Members', value: '16' },
+  ];
 
-<Collapsible summary="Difference between Expo Go and development builds">
+  const sites = [
+    { id: 'NWMOB1', status: 'Running', region: 'Dhaka' },
+    { id: 'DHKCFI', status: 'Pending', region: 'Dhaka' },
+    { id: 'DHSETI', status: 'Completed', region: 'Secretariat' },
+  ];
 
-[Expo Go](https://expo.dev/go) is a playground app for students and learners to get started quickly. It comes with a fixed set of native libraries built in, so you can write JavaScript code and see changes instantly without building a native app yourself. A development build is a fully featured development environment for working on your production-grade Expo apps.
+  const actions = [
+    'Generate Mail',
+    'Material Request',
+    'Access Letter',
+    'Daily Report',
+  ];
 
-</Collapsible>
+  // লগইন সাবমিট হ্যান্ডলার
+  const handleLogin = (e) => {
+    e.preventDefault();
+    // এখানে যেকোনো ডামি ইমেইল ও পাসওয়ার্ড দিলেই ড্যাশবোর্ডে নিয়ে যাবে
+    if (email && password) {
+      setScreen('dashboard');
+    }
+  };
 
-<Collapsible summary="Native app and JavaScript bundle">
+  // ১. লগইন স্ক্রিন ডিজাইন
+  if (screen === 'login') {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-3xl shadow-xl p-8 max-w-md w-full text-center space-y-6">
+          <div>
+            <h1 className="text-3xl font-bold text-black">TelcoAssist AI</h1>
+            <p className="text-gray-500 mt-2">Telecom & IBS Work Management</p>
+          </div>
+          
+          <form onSubmit={handleLogin} className="space-y-4 text-left">
+            <div>
+              <label className="text-sm font-semibold text-gray-600 block mb-1">User Email</label>
+              <input 
+                type="email" 
+                required
+                placeholder="name@telco.com" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full bg-gray-50 border rounded-2xl p-4 outline-none focus:border-black transition"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-semibold text-gray-600 block mb-1">Password</label>
+              <input 
+                type="password" 
+                required
+                placeholder="••••••••" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-gray-50 border rounded-2xl p-4 outline-none focus:border-black transition"
+              />
+            </div>
+            <button 
+              type="submit" 
+              className="w-full bg-black text-white rounded-2xl p-4 font-semibold hover:bg-gray-800 transition mt-2"
+            >
+              Sign In
+            </button>
+          </form>
+          <p className="text-xs text-gray-400">Authorized personnel only. RF Operations Division.</p>
+        </div>
+      </div>
+    );
+  }
 
-The **native app** is what you install on your device. Expo Go is a pre-built native app that works like a playground &mdash; it can't be changed after you install it. To add new native libraries or change things like your app name and icon, you need to build your own native app (a development build).
+  // ২. সেটিংস স্ক্রিন ডিজাইন
+  if (screen === 'settings') {
+    return (
+      <div className="min-h-screen bg-gray-100 p-4">
+        <div className="max-w-2xl mx-auto bg-white rounded-3xl shadow-lg p-6 mt-6 space-y-6">
+          <div className="flex items-center justify-between border-b pb-4">
+            <h2 className="text-2xl font-bold">Control Settings</h2>
+            <button 
+              onClick={() => setScreen('dashboard')} 
+              className="bg-gray-100 hover:bg-gray-200 text-sm font-medium px-4 py-2 rounded-xl transition"
+            >
+              Back to App
+            </button>
+          </div>
 
-The **JavaScript bundle (`npx expo start`)** is where your app's UI code and business logic are. In production apps, there is one **main.js** bundle that is shipped with the app itself. In development, this JS bundle is live reloaded from your local machine. The main role of React Native is to provide a way for the JavaScript code to access the native APIs (Image, Camera, Notifications, and more). However, only APIs and libraries that were bundled in the **native app** can be used.
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
+              <div>
+                <h3 className="font-semibold">Push Notifications</h3>
+                <p className="text-xs text-gray-500">Get alerts for critical alarms and material delivery</p>
+              </div>
+              <input 
+                type="checkbox" 
+                checked={notifications} 
+                onChange={() => setNotifications(!notifications)}
+                className="w-5 h-5 accent-black cursor-pointer"
+              />
+            </div>
 
-</Collapsible>
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
+              <div>
+                <h3 className="font-semibold">Dark Mode (Beta)</h3>
+                <p className="text-xs text-gray-500">Switch app layout to high-contrast dark theme</p>
+              </div>
+              <input 
+                type="checkbox" 
+                checked={darkMode} 
+                onChange={() => setDarkMode(!darkMode)}
+                className="w-5 h-5 accent-black cursor-pointer"
+              />
+            </div>
 
-<VideoBoxLink
-  videoId="FdjczjkwQKE"
-  title="Expo Go & Development Builds: which should you use?"
-  description="In this tutorial video Beto explains what each of them is, and when to choose a development build."
-/>
+            <div className="p-4 bg-gray-50 rounded-2xl space-y-2">
+              <div>
+                <h3 className="font-semibold">Default Operations Region</h3>
+                <p className="text-xs text-gray-500">Filter your primary dashboard data</p>
+              </div>
+              <select 
+                value={regionFilter} 
+                onChange={(e) => setRegionFilter(e.target.value)}
+                className="w-full bg-white border rounded-xl p-3 outline-none mt-2"
+              >
+                <option value="All">All Regions (Bangladesh)</option>
+                <option value="Dhaka">Dhaka Division</option>
+                <option value="Chittagong">Chittagong Division</option>
+              </select>
+            </div>
+          </div>
 
-## Why use a development build (a.k.a what _can't_ you do in Expo Go and why)
+          <div className="border-t pt-4 flex gap-3">
+            <button 
+              onClick={() => setScreen('login')} 
+              className="w-full bg-red-50 hover:bg-red-100 text-red-600 font-semibold p-4 rounded-2xl transition"
+            >
+              Log Out
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-Expo Go is a playground for students and learners to understand the basics of React Native. It's limited and not useful for building production-grade projects, so most apps will convert to using development builds. It helps to know exactly what is _impossible_ in Expo Go and _why_, so you can make an informed decision on when and why to make this move.
+  // ৩. মূল ড্যাশবোর্ড স্ক্রিন (Settings ও Logout বাটন যুক্ত করা হয়েছে)
+  return (
+    <div className="min-h-screen bg-gray-100 p-4">
+      <div className="max-w-6xl mx-auto space-y-6">
+        
+        {/* হেডার পার্ট - বাটন সহ */}
+        <div className="bg-white rounded-3xl shadow-lg p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold">TelcoAssist AI</h1>
+            <p className="text-gray-500 mt-1">Telecom & IBS Work Management Assistant</p>
+          </div>
 
-<Collapsible summary="Use libraries with native code that aren't in Expo Go">
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+            <button 
+              onClick={() => setScreen('settings')}
+              className="bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-2xl text-sm font-medium transition"
+            >
+              ⚙️ Settings
+            </button>
+            <div className="bg-blue-100 px-4 py-2 rounded-2xl text-sm font-medium">
+              RF Operations
+            </div>
+          </div>
+        </div>
 
-Consider [`react-native-webview`](/versions/latest/sdk/webview/) as an example, a library that contains native code, but [is included in Expo Go](https://github.com/expo/expo/blob/main/apps/expo-go/package.json#L23). When you run `npx expo install react-native-webview` command in your project, it will install the library in your **node_modules** directory, which includes both the JS code and the native code. But the JS bundle you are building _only_ uses the JS code. Then, your JS bundle gets uploaded to Expo Go, and it interacts with the native code that was already bundled with the app.
+        {/* কার্ড সেকশন */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {cards.map((card, index) => (
+            <div key={index} className="bg-white rounded-3xl shadow-md p-5">
+              <p className="text-gray-500 text-sm">{card.title}</p>
+              <h2 className="text-3xl font-bold mt-2">{card.value}</h2>
+            </div>
+          ))}
+        </div>
 
-Instead, when you try to use a library that is not included, for example, [`react-native-firebase`](/guides/using-firebase/#using-react-native-firebase), then you can use the JS code and hot reload the new bundle into Expo Go but it will immediately error because the JS code tries to call the native code from the React Native Firebase package that does not exist in Expo Go. There is no way to get the native code into the Expo Go app unless it was already included in the bundle that was uploaded to the app stores.
+        {/* সাইট স্ট্যাটাস এবং কুইক অ্যাকশন */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 bg-white rounded-3xl shadow-md p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold">Site Status</h2>
+              <button className="bg-black text-white px-4 py-2 rounded-2xl text-sm">Add Site</button>
+            </div>
 
-</Collapsible>
+            <div className="space-y-4">
+              {sites.map((site, index) => (
+                <div key={index} className="border rounded-2xl p-4 flex items-center justify-between">
+                  <div>
+                    <h3 className="font-bold text-lg">{site.id}</h3>
+                    <p className="text-gray-500 text-sm">{site.region}</p>
+                  </div>
+                  <div>
+                    <span className="bg-gray-100 px-4 py-2 rounded-xl text-sm font-medium">{site.status}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
 
-<Collapsible summary="Test changes in app icon, name, splash screen">
+          {/* কুইক অ্যাকশন এবং এআই */}
+          <div className="bg-white rounded-3xl shadow-md p-6">
+            <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
+            <div className="space-y-3">
+              {actions.map((action, index) => (
+                <button key={index} className="w-full bg-gray-100 hover:bg-black hover:text-white transition rounded-2xl p-4 text-left font-medium">
+                  {action}
+                </button>
+              ))}
+            </div>
 
-If you're developing your app in Expo Go only, you can build a store version that will use your provided values and images; it just won't be possible to test it in Expo Go.
+            <div className="mt-6 bg-black text-white rounded-3xl p-5">
+              <h3 className="text-lg font-semibold">AI Assistant</h3>
+              <p className="text-sm text-gray-300 mt-2">Ask anything related to telecom operations.</p>
+              <div className="mt-4 bg-white rounded-2xl p-2 flex items-center">
+                <input type="text" placeholder="Generate material request..." className="flex-1 outline-none text-black px-2" />
+                <button className="bg-black text-white px-4 py-2 rounded-xl text-sm">Send</button>
+              </div>
+            </div>
+          </div>
+        </div>
 
-These native assets are shipped with the native bundle and are immutable once the app is installed. The Expo Go app does show a splash screen, which is your app icon on a solid color background. This is a dev-only emulation to view how the splash screen will probably look. However, it is limited, for example, you cannot test `SplashScreen.setOptions` to animate the splash screen.
+        {/* ম্যাটেরিয়াল রিকোয়েস্ট টেবিল */}
+        <div className="bg-white rounded-3xl shadow-md p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">Recent Material Requests</h2>
+            <button className="bg-black text-white px-4 py-2 rounded-2xl text-sm">View All</button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="text-left text-gray-500 border-b">
+                  <th className="pb-3">Site</th>
+                  <th className="pb-3">Material</th>
+                  <th className="pb-3">Qty</th>
+                  <th className="pb-3">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b">
+                  <td className="py-4">NWMOB1</td>
+                  <td>RF Cable</td>
+                  <td>140m</td>
+                  <td><span className="bg-yellow-100 px-3 py-1 rounded-lg text-sm">Pending</span></td>
+                </tr>
+                <tr className="border-b">
+                  <td className="py-4">DHKCFI</td>
+                  <td>Battery</td>
+                  <td>2 PCS</td>
+                  <td><span className="bg-green-100 px-3 py-1 rounded-lg text-sm">Delivered</span></td>
+                </tr>
+                <tr>
+                  <td className="py-4">DHSETI</td>
+                  <td>2x4 Port</td>
+                  <td>1 PCS</td>
+                  <td><span className="bg-blue-100 px-3 py-1 rounded-lg text-sm">Processing</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
 
-</Collapsible>
-
-<Collapsible summary="Remote push notifications">
-
-While [in-app notifications](/versions/latest/sdk/notifications/) are available in Expo Go, remote push notifications (that is, sending a push notification from a server to the app) are not. This is because a push notification service should be tied to your own push notification certificates, and while it is possible to make it work in Expo Go, it often causes confusion for production builds. It is recommended to test remote push notifications in development builds so you can ensure parity in behavior between development and production.
-
-</Collapsible>
-
-<Collapsible summary="Implementing App/Universal links">
-
-Both [Android App Links](/linking/android-app-links/) and [iOS Universal Links](/linking/ios-universal-links/) require a two-way association between the native app and the website. In particular, it requires the native app to include the linked website's URL. This is impossible with Expo Go due to the aforementioned native code immutability.
-
-</Collapsible>
-
-<Collapsible summary="Open projects using older SDKs (iOS device only)">
-
-Expo Go can only support one SDK version at a time. When a new SDK version is released, Expo Go is updated to support the newer version, and this will be the only version of Expo Go available to install from the stores.
-
-If you're developing on an Android Device, Android Emulator, or iOS Simulator, a compatible version of Expo Go can be [downloaded and installed](https://expo.dev/go). The only platform where this is impossible is iPhone devices because Apple does not support side-loading older versions of apps.
-
-</Collapsible>
-
-<BoxLink
-  title="Expo Go to development build"
-  description="Learn how to migrate an existing Expo Go project to using development builds."
-  href="/develop/development-builds/expo-go-to-dev-build/"
-  Icon={BookOpen02Icon}
-/>
-
-<BoxLink
-  title="Local app development"
-  description="How to build a development client on your local machine."
-  href="/guides/local-app-development"
-  Icon={BookOpen02Icon}
-/>
-
-<BoxLink
-  title="Development builds on EAS"
-  description="How to build a development client on EAS."
-  href="/develop/development-builds/create-a-build/"
-  Icon={BookOpen02Icon}
-/>
+      </div>
+    </div>
+  );
+}
